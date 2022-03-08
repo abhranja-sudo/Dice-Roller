@@ -11,13 +11,20 @@ import androidx.core.content.ContextCompat
 
 const val MAX_DICE = 3
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(),
+    RollLengthDialogFragment.OnRollLengthSelectedListener {
 
+    private var timerLength = 2000L
     private lateinit var optionsMenu: Menu
     private var timer: CountDownTimer? = null
     private var numVisibleDice = MAX_DICE
     private lateinit var diceList: MutableList<Dice>
     private lateinit var diceImageViewList: MutableList<ImageView>
+
+    override fun onRollLengthClick(which: Int) {
+        // Convert to milliseconds
+        timerLength = 1000L * (which + 1)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +77,11 @@ class MainActivity : AppCompatActivity() {
                 rollDice()
                 true
             }
+            R.id.action_roll_length -> {
+                val dialog = RollLengthDialogFragment()
+                dialog.show(supportFragmentManager, "rollLengthDialog")
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -78,7 +90,8 @@ class MainActivity : AppCompatActivity() {
         timer?.cancel()
 
         // Start a timer that periodically changes each visible dice
-        timer = object : CountDownTimer(2000, 100) {
+
+        timer = object : CountDownTimer(timerLength, 100) {
             override fun onTick(millisUntilFinished: Long) {
                 for (i in 0 until numVisibleDice) {
                     diceList[i].roll()
