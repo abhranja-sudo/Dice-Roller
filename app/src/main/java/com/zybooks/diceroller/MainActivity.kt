@@ -13,6 +13,8 @@ const val MAX_DICE = 3
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var optionsMenu: Menu
+    private var timer: CountDownTimer? = null
     private var numVisibleDice = MAX_DICE
     private lateinit var diceList: MutableList<Dice>
     private lateinit var diceImageViewList: MutableList<ImageView>
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        optionsMenu = menu!!
         menuInflater.inflate(R.menu.appbar_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
@@ -58,8 +61,35 @@ class MainActivity : AppCompatActivity() {
                 showDice()
                 true
             }
+            R.id.action_stop -> {
+                timer?.cancel()
+                item.isVisible = false
+                true
+            }
+            R.id.action_roll -> {
+                rollDice()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+    private fun rollDice() {
+        optionsMenu.findItem(R.id.action_stop).isVisible = true
+        timer?.cancel()
+
+        // Start a timer that periodically changes each visible dice
+        timer = object : CountDownTimer(2000, 100) {
+            override fun onTick(millisUntilFinished: Long) {
+                for (i in 0 until numVisibleDice) {
+                    diceList[i].roll()
+                }
+                showDice()
+            }
+
+            override fun onFinish() {
+                optionsMenu.findItem(R.id.action_stop).isVisible = false
+            }
+        }.start()
     }
 
     private fun changeDiceVisibility(numVisible: Int) {
