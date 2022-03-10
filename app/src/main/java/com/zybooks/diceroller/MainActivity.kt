@@ -2,6 +2,7 @@ package com.zybooks.diceroller
 
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -41,8 +42,38 @@ class MainActivity : AppCompatActivity(),
             findViewById(R.id.dice1), findViewById(R.id.dice2), findViewById(R.id.dice3))
 
         showDice()
+        registerForContextMenu(diceImageViewList[0])
     }
 
+    //contextMenu
+    override fun onCreateContextMenu(menu: ContextMenu?,
+                                     v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+        menuInflater.inflate(R.menu.context_menu, menu)
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.add_one -> {
+                diceList[0].number++
+                showDice()
+                true
+            }
+            R.id.subtract_one -> {
+                diceList[0].number--
+                showDice()
+                true
+            }
+            R.id.roll -> {
+                rollDice()
+                true
+            }
+            else -> super.onContextItemSelected(item)
+        }
+    }
+
+
+    //menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         optionsMenu = menu!!
         menuInflater.inflate(R.menu.appbar_menu, menu)
